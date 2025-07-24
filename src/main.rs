@@ -3,17 +3,15 @@ mod libdatabend;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{
+    Frame, Terminal,
     backend::CrosstermBackend,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{
-        Block, BorderType, Borders, Clear, Gauge, List, ListItem, Paragraph, Wrap,
-    },
-    Frame, Terminal,
+    widgets::{Block, BorderType, Borders, Clear, Gauge, List, ListItem, Paragraph, Wrap},
 };
 use std::{
     io::{self, Stdout},
@@ -58,13 +56,15 @@ impl App {
         let effects = vec![
             DatabendEffect {
                 name: "Oversensibility".to_string(),
-                description: "Simulates high ISO sensitivity with random noise corruption".to_string(),
+                description: "Simulates high ISO sensitivity with random noise corruption"
+                    .to_string(),
                 emoji: "📸".to_string(),
                 params: vec!["ISO (0-6400)".to_string()],
             },
             DatabendEffect {
                 name: "Overexposure".to_string(),
-                description: "Creates blown-out highlights with random brightness boosts".to_string(),
+                description: "Creates blown-out highlights with random brightness boosts"
+                    .to_string(),
                 emoji: "☀️".to_string(),
                 params: vec!["Exposure Factor (0.1-3.0)".to_string()],
             },
@@ -167,12 +167,20 @@ impl App {
             3 => {
                 // Variations on a Cloud
                 let patch_size = self.params[0].parse::<u32>().unwrap_or(50);
-                libdatabend::variationsonacloud::main(&self.input_path, &self.output_path, patch_size);
+                libdatabend::variationsonacloud::main(
+                    &self.input_path,
+                    &self.output_path,
+                    patch_size,
+                );
             }
             4 => {
                 // The Mind Electric
                 let layers = self.params[0].parse::<u32>().unwrap_or(5);
-                let _ = libdatabend::themindelectric::main(&self.input_path, &self.output_path, &layers);
+                let _ = libdatabend::themindelectric::main(
+                    &self.input_path,
+                    &self.output_path,
+                    &layers,
+                );
             }
             5 => {
                 // Jack Stauberism
@@ -224,6 +232,7 @@ fn run_app(terminal: &mut Tui, app: &mut App) -> io::Result<()> {
         terminal.draw(|f| ui(f, app))?;
 
         if let Ok(true) = event::poll(Duration::from_millis(50)) {
+            app.last_update = Instant::now();
             if let Event::Key(key) = event::read()? {
                 // Only process KeyEventKind::Press to avoid duplicates from key repeat
                 if key.kind == KeyEventKind::Press {
@@ -261,7 +270,13 @@ fn run_app(terminal: &mut Tui, app: &mut App) -> io::Result<()> {
                             _ => {}
                         },
                         InputMode::Parameters(idx) => match key.code {
-                            KeyCode::Enter => app.current_input = InputMode::SelectingEffect,
+                            KeyCode::Enter => {
+                                app.execute_effect();
+                                app.current_input = InputMode::Processing;
+                                app.processing = true;
+                                app.progress = 0.0;
+                            }
+
                             KeyCode::Esc => app.current_input = InputMode::SelectingEffect,
                             KeyCode::Backspace => {
                                 app.params[idx].pop();
@@ -290,15 +305,19 @@ fn ui(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),  // Title
-            Constraint::Min(10),    // Main content
-            Constraint::Length(3),  // Status
+            Constraint::Length(3), // Title
+            Constraint::Min(10),   // Main content
+            Constraint::Length(3), // Status
         ])
         .split(f.area());
 
     // Title
     let title = Paragraph::new("📸💣 |Shutterbomb - v0.1 - 🎵 I've began to databend 🎵| 📸💣")
-        .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
+        .style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )
         .alignment(Alignment::Center)
         .block(
             Block::default()
@@ -349,10 +368,10 @@ fn ui(f: &mut Frame, app: &App) {
     let right_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(4),  // Description
-            Constraint::Length(3),  // Input path
-            Constraint::Length(3),  // Output path
-            Constraint::Min(3),     // Parameters
+            Constraint::Length(4), // Description
+            Constraint::Length(3), // Input path
+            Constraint::Length(3), // Output path
+            Constraint::Min(3),    // Parameters
         ])
         .split(main_chunks[1]);
 
@@ -402,7 +421,8 @@ fn ui(f: &mut Frame, app: &App) {
 
     // Parameters
     if !app.effects[app.selected_effect].params.is_empty() {
-        let param_text = app.effects[app.selected_effect].params
+        let param_text = app.effects[app.selected_effect]
+            .params
             .iter()
             .zip(&app.params)
             .enumerate()
@@ -413,19 +433,21 @@ fn ui(f: &mut Frame, app: &App) {
                     Style::default()
                 };
                 Line::from(vec![
-                    Span::styled(format!("{}: ", param_name), Style::default().fg(Color::Cyan)),
+                    Span::styled(
+                        format!("{}: ", param_name),
+                        Style::default().fg(Color::Cyan),
+                    ),
                     Span::styled(value.clone(), style),
                 ])
             })
             .collect::<Vec<_>>();
 
-        let params = Paragraph::new(Text::from(param_text))
-            .block(
-                Block::default()
-                    .title("⚙️ Parameters (p)")
-                    .borders(Borders::ALL)
-                    .border_style(Style::default().fg(Color::Cyan)),
-            );
+        let params = Paragraph::new(Text::from(param_text)).block(
+            Block::default()
+                .title("⚙️ Parameters (p)")
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Cyan)),
+        );
         f.render_widget(params, right_chunks[3]);
     }
 
@@ -433,7 +455,10 @@ fn ui(f: &mut Frame, app: &App) {
     let status_text = vec![
         Line::from(vec![
             Span::styled("Status: ", Style::default().fg(Color::White)),
-            Span::styled(app.status_message.clone(), Style::default().fg(Color::Green)),
+            Span::styled(
+                app.status_message.clone(),
+                Style::default().fg(Color::Green),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Controls: "),
@@ -448,13 +473,12 @@ fn ui(f: &mut Frame, app: &App) {
         ]),
     ];
 
-    let status = Paragraph::new(Text::from(status_text))
-        .block(
-            Block::default()
-                .title("📊 Status")
-                .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::White)),
-        );
+    let status = Paragraph::new(Text::from(status_text)).block(
+        Block::default()
+            .title("📊 Status")
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::White)),
+    );
     f.render_widget(status, chunks[2]);
 
     // Processing overlay
@@ -474,7 +498,11 @@ fn ui(f: &mut Frame, app: &App) {
     }
 }
 
-fn centered_rect(percent_x: u16, percent_y: u16, r: ratatui::layout::Rect) -> ratatui::layout::Rect {
+fn centered_rect(
+    percent_x: u16,
+    percent_y: u16,
+    r: ratatui::layout::Rect,
+) -> ratatui::layout::Rect {
     let popup_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([

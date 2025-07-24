@@ -1,5 +1,5 @@
 use image::{ImageBuffer, ImageReader, RgbaImage, DynamicImage};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 
 pub fn main(input_path: &str, output_path: &str, patch_size: u32) {
     let img = ImageReader::open(input_path)
@@ -7,7 +7,7 @@ pub fn main(input_path: &str, output_path: &str, patch_size: u32) {
         .decode()
         .expect("Failed to decode image");
 
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let rawimg = img.to_rgba8().into_raw();
     let height = img.height();
     let width = img.width();
@@ -16,10 +16,10 @@ pub fn main(input_path: &str, output_path: &str, patch_size: u32) {
         panic!("Patch size must be smaller than image dimensions");
     }
 
-    let sx = rng.gen_range(0..(width - patch_size));
-    let sy = rng.gen_range(0..(height - patch_size));
-    let tx = rng.gen_range(0..(width - patch_size));
-    let ty = rng.gen_range(0..(height - patch_size));
+    let sx = rng.random_range(0..(width - patch_size));
+    let sy = rng.random_range(0..(height - patch_size));
+    let tx = rng.random_range(0..(width - patch_size));
+    let ty = rng.random_range(0..(height - patch_size));
 
     let mut new_rawimg = rawimg.clone();
     for y in 0..patch_size {

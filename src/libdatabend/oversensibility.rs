@@ -1,5 +1,5 @@
 use image::{ImageReader, ImageBuffer, RgbaImage, DynamicImage};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 
 pub fn main(input_path: &str, output_path: &str, iso: &i32) {
     let img = ImageReader::open(input_path)
@@ -9,11 +9,11 @@ pub fn main(input_path: &str, output_path: &str, iso: &i32) {
 
     let mut rawimg = img.to_rgba8().into_raw();
     let intensity = 0.01 * *iso as f32 / 1000.0; // More reasonable intensity calculation
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     for byte in rawimg.iter_mut() {
-        if rng.gen_bool(intensity as f64) {
-            *byte = rng.gen_range(0..=255);
+        if rng.random_bool(intensity as f64) {
+            *byte = rng.random_range(0..=255);
         }
     }
 

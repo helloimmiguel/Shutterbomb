@@ -1,5 +1,6 @@
 use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage};
-use rand::{thread_rng, Rng};
+use rand::Rng;
+use rand::rng;
 use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 
@@ -18,10 +19,10 @@ pub fn main(input_path: &str, output_path: &str) {
             if let Event::Key(key_event) = event::read().unwrap() {
                 match key_event.code {
                     KeyCode::Char(_) => {
-                        let mut rng = thread_rng();
-                        for _ in 0..img.len() / 16 {
-                            let idx = rng.gen_range(0..img.len());
-                            img[idx] = rng.gen_range(0..=255);
+                        for _ in 0..img.len() / 16 { 
+                            let mut luck = rng();
+                            let idx = luck.random_range(0..img.len());
+                            img[idx] = luck.random_range(0..=255);
                         }
                     }
                     KeyCode::Esc => {

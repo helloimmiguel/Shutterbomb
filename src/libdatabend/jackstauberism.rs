@@ -1,7 +1,7 @@
 use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use image::{ImageBuffer, ImageReader, RgbaImage, DynamicImage};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use std::time::Duration;
 use std::error::Error;
 
@@ -57,7 +57,7 @@ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
     Gotta, gotta
     "#;
     let mut lyric_index = 0;
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let lyrics_bytes = lyrics.as_bytes();
 
     loop {
@@ -66,7 +66,7 @@ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
                 match key_event.code {
                     KeyCode::Char(_) => {
                         for _ in 0..img.len() / 128 {
-                            let idx = rng.gen_range(0..img.len());
+                            let idx = rng.random_range(0..img.len());
                             img[idx] = lyrics_bytes[lyric_index];
                             lyric_index = (lyric_index + 1) % lyrics_bytes.len();
                         }

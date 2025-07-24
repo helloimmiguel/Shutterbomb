@@ -1,6 +1,6 @@
 use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use image::{ImageBuffer, ImageReader, RgbaImage, DynamicImage};
 
 pub fn main(input_path: &str, output_path: &str) {
@@ -10,7 +10,7 @@ pub fn main(input_path: &str, output_path: &str) {
         .expect("Failed to decode image");
 
     let mut rawimg = img.to_rgba8().into_raw();
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     enable_raw_mode().expect("failed to enable raw mode");
 
@@ -20,7 +20,7 @@ pub fn main(input_path: &str, output_path: &str) {
                 match key_event.code {
                     KeyCode::Char(c) => {
                         let value = c as u8;
-                        let random_index = rng.gen_range(0..rawimg.len());
+                        let random_index = rng.random_range(0..rawimg.len());
                         rawimg[random_index] = value;
                         println!("Applied '{}' ({} as u8) at {}", c, value, random_index);
                     }

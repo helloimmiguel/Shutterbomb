@@ -1,22 +1,22 @@
 use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba, GenericImageView};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use std::error::Error;
 
 pub fn main(input_path: &str, output_path: &str, layers: &u32) -> Result<(), Box<dyn Error>> {
     let img = ImageReader::open(input_path)?.decode()?;
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let (width, height) = (img.width(), img.height());
     let mut canvas = ImageBuffer::from_pixel(width, height, Rgba([0, 0, 0, 0]));
 
     for _ in 0..*layers {
-        let offset_x = rng.gen_range(0..width);
-        let offset_y = rng.gen_range(0..height);
-        let alpha_mult = rng.gen_range(0.1..0.3);
+        let offset_x = rng.random_range(0..width);
+        let offset_y = rng.random_range(0..height);
+        let alpha_mult = rng.random_range(0.1..0.3);
 
         let color_shift = (
-            rng.gen_range(0..256),
-            rng.gen_range(0..256),
-            rng.gen_range(0..256),
+            rng.random_range(0..256),
+            rng.random_range(0..256),
+            rng.random_range(0..256),
         );
 
         for y in 0..height {
