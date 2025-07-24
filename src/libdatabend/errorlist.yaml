@@ -1,0 +1,487 @@
+   Compiling Shutterbomb v0.1.0 (C:\Users\Miguel\Documents\Projetinhos\Shutterbomb)
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\main.rs:20:28
+   |
+20 |         let chance = rand::thread_rng().gen_bool(0.5); // 50% chance
+   |                            ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\main.rs:22:27
+   |
+22 |             *byte = rand::thread_rng().gen_range(0..=255); // random new value
+   |                           ^^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_bool`: Renamed to `random_bool`
+  --> src\main.rs:20:41
+   |
+20 |         let chance = rand::thread_rng().gen_bool(0.5); // 50% chance
+   |                                         ^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\main.rs:22:40
+   |
+22 |             *byte = rand::thread_rng().gen_range(0..=255); // random new value
+   |                                        ^^^^^^^^^
+
+warning: `Shutterbomb` (bin "Shutterbomb") generated 4 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.07s
+     Running `target\debug\Shutterbomb.exe`
+Image exists lol
+Databending completed. Output saved to ./output.jpg
+PS C:\Users\Miguel\Documents\Projetinhos\Shutterbomb> 
+ *  History restored 
+PS C:\Users\Miguel\Documents\Projetinhos> cd .\Shutterbomb\
+PS C:\Users\Miguel\Documents\Projetinhos\Shutterbomb> cargo run 
+   Compiling Shutterbomb v0.1.0 (C:\Users\Miguel\Documents\Projetinhos\Shutterbomb)
+error[E0252]: the name `DynamicImage` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:4:13
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};   
+  |             ------------ previous import of the type `DynamicImage` here
+...
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |             ^^^^^^^^^^^^--
+  |             |
+  |             `DynamicImage` reimported here
+  |             help: remove unnecessary import
+  |
+  = note: `DynamicImage` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `ImageBuffer` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:4:27
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                           ----------- previous import of the type `ImageBuffer` here
+...
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                           ^^^^^^^^^^^--
+  |                           |
+  |                           `ImageBuffer` reimported here
+  |                           help: remove unnecessary import
+  |
+  = note: `ImageBuffer` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `ImageReader` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:4:40
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                        ----------- previous import of the type `ImageReader` here
+...
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                        ^^^^^^^^^^^--
+  |                                        |
+  |                                        `ImageReader` reimported here
+  |                                        help: remove unnecessary import
+  |
+  = note: `ImageReader` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `RgbaImage` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:4:53
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                                     --------- previous import of the type `RgbaImage` here...
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                                     ^^^^^^^^^--
+  |                                                     |
+  |                                                     `RgbaImage` reimported here
+  |                                                     help: remove unnecessary import
+  |
+  = note: `RgbaImage` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `Rgba` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:4:64
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                                                ---- previous import of the type `Rgba` here
+...
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |                                                                ^^^^ `Rgba` reimported here
+  |
+  = note: `Rgba` must be defined only once in the type namespace of this module
+
+error[E0252]: the name `Rng` is defined multiple times
+ --> src\libdatabend\themindelectric.rs:5:5
+  |
+2 | use rand::Rng;
+  |     --------- previous import of the trait `Rng` here
+...
+5 | use rand::Rng;
+  |     ^^^^^^^^^ `Rng` reimported here
+  |
+  = note: `Rng` must be defined only once in the type namespace of this module
+
+error[E0433]: failed to resolve: use of undeclared type `Duration`
+  --> src\libdatabend\jackstauberism.rs:62:24
+   |
+62 |         if event::poll(Duration::from_millis(500))? {
+   |                        ^^^^^^^^ use of undeclared type `Duration`
+   |
+help: consider importing one of these structs
+   |
+1  + use crate::Duration;
+   |
+1  + use std::time::Duration;
+   |
+
+error[E0425]: cannot find value `rng` in this scope
+  --> src\libdatabend\jackstauberism.rs:67:39
+   |
+67 | ...                   let idx = rng.gen_range(0..img.len());
+   |                                 ^^^ not found in this scope
+   |
+help: consider importing this function
+   |
+1  + use rand::rng;
+   |
+
+warning: unused imports: `ImageBuffer` and `RgbaImage`
+ --> src\libdatabend\variationsonacloud.rs:1:13
+  |
+1 | use image::{ImageBuffer, ImageReader, RgbaImage};
+  |             ^^^^^^^^^^^               ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused imports: `DynamicImage`, `ImageBuffer`, `ImageReader`, `RgbaImage`, and `Rgba`
+ --> src\libdatabend\themindelectric.rs:4:13
+  |
+4 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |             ^^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^^^  ^^^^^^^^^  ^^^^
+
+warning: unused import: `rand::Rng`
+ --> src\libdatabend\themindelectric.rs:5:5
+  |
+5 | use rand::Rng;
+  |     ^^^^^^^^^
+
+warning: unused imports: `DynamicImage` and `Rgba`
+ --> src\libdatabend\jackstauberism.rs:3:13
+  |
+3 | use image::{DynamicImage, ImageBuffer, ImageReader, Rgba, RgbaImage};
+  |             ^^^^^^^^^^^^                            ^^^^
+
+warning: unused imports: `DynamicImage`, `ImageBuffer`, `RgbaImage`, and `Rgba`
+ --> src\libdatabend\newnormal.rs:1:13
+  |
+1 | use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba};
+  |             ^^^^^^^^^^^^  ^^^^^^^^^^^               ^^^^^^^^^  ^^^^
+
+warning: unused import: `disable_raw_mode`
+ --> src\libdatabend\newnormal.rs:4:44
+  |
+4 | use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
+  |                                            ^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ListState` and `Margin`
+  --> src\main.rs:10:56
+   |
+10 |     layout::{Alignment, Constraint, Direction, Layout, Margin},
+   |                                                        ^^^^^^
+...
+14 |         Block, BorderType, Borders, Clear, Gauge, List, ListItem, ListState, Paragraph, Wrap,
+   |                                                                   ^^^^^^^^^
+
+warning: unused import: `fs`
+  --> src\main.rs:19:5
+   |
+19 |     fs,
+   |     ^^
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\oversensibility.rs:14:18
+   |
+14 |         if rand::thread_rng().gen_bool(intensity as f64) {
+   |                  ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\oversensibility.rs:15:27
+   |
+15 |             *byte = rand::thread_rng().gen_range(0..=255);
+   |                           ^^^^^^^^^^
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\overexposure.rs:11:25
+   |
+11 |     let mut rng = rand::thread_rng();
+   |                         ^^^^^^^^^^
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\synestesia.rs:13:25
+   |
+13 |     let mut rng = rand::thread_rng();
+   |                         ^^^^^^^^^^
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\variationsonacloud.rs:10:25
+   |
+10 |     let mut rng = rand::thread_rng();
+   |                         ^^^^^^^^^^
+
+warning: use of deprecated function `rand::thread_rng`: Renamed to `rng`
+  --> src\libdatabend\themindelectric.rs:11:25
+   |
+11 |     let mut rng = rand::thread_rng();
+   |                         ^^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_bool`: Renamed to `random_bool`
+  --> src\libdatabend\oversensibility.rs:14:31
+   |
+14 |         if rand::thread_rng().gen_bool(intensity as f64) {
+   |                               ^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\oversensibility.rs:15:40
+   |
+15 |             *byte = rand::thread_rng().gen_range(0..=255);
+   |                                        ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\overexposure.rs:15:33
+   |
+15 |             let boost: u8 = rng.gen_range(0..50);
+   |                                 ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\synestesia.rs:23:48
+   |
+23 |                         let random_index = rng.gen_range(0..rawimg.len());
+   |                                                ^^^^^^^^^
+
+warning: unreachable call
+ --> src\libdatabend\variationsonacloud.rs:6:10
+  |
+6 |         .expect(panic!("Failed to open image"))
+  |          ^^^^^^ ------------------------------ any code following this expression is unreachable
+  |          |
+  |          unreachable call
+  |
+  = note: `#[warn(unreachable_code)]` on by default
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\variationsonacloud.rs:18:18
+   |
+18 |     let sx = rng.gen_range(0..(width - patch_size));
+   |                  ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\variationsonacloud.rs:19:18
+   |
+19 |     let sy = rng.gen_range(0..(height - patch_size));
+   |                  ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\variationsonacloud.rs:20:18
+   |
+20 |     let tx = rng.gen_range(0..(width - patch_size));
+   |                  ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\variationsonacloud.rs:21:18
+   |
+21 |     let ty = rng.gen_range(0..(height - patch_size));
+   |                  ^^^^^^^^^
+
+error[E0277]: the type `[u8]` cannot be indexed by `std::ops::Range<u32>`
+  --> src\libdatabend\variationsonacloud.rs:28:24
+   |
+28 |             new_rawimg[dest_index..dest_index + 4].copy_from_slice(&rawimg[src_index..src_index + 4]);   
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^ slice indices are of type `usize` or ranges of `usize` 
+   |
+   = help: the trait `SliceIndex<[u8]>` is not implemented for `std::ops::Range<u32>`
+   = help: the following other types implement trait `SliceIndex<T>`:
+             `std::ops::Range<usize>` implements `SliceIndex<ByteStr>`
+             `std::ops::Range<usize>` implements `SliceIndex<[T]>`
+             `std::ops::Range<usize>` implements `SliceIndex<str>`
+   = note: required for `Vec<u8>` to implement `Index<std::ops::Range<u32>>`
+
+error[E0277]: the type `[u8]` cannot be indexed by `std::ops::Range<u32>`
+  --> src\libdatabend\variationsonacloud.rs:28:76
+   |
+28 |             new_rawimg[dest_index..dest_index + 4].copy_from_slice(&rawimg[src_index..src_index + 4]);   
+   |                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^ slice indices are of type `usize` or ranges of `usize`
+   |
+   = help: the trait `SliceIndex<[u8]>` is not implemented for `std::ops::Range<u32>`
+   = help: the following other types implement trait `SliceIndex<T>`:
+             `std::ops::Range<usize>` implements `SliceIndex<ByteStr>`
+             `std::ops::Range<usize>` implements `SliceIndex<[T]>`
+             `std::ops::Range<usize>` implements `SliceIndex<str>`
+   = note: required for `Vec<u8>` to implement `Index<std::ops::Range<u32>>`
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:16:28
+   |
+16 |         let offset_x = rng.gen_range(0..width);
+   |                            ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:17:28
+   |
+17 |         let offset_y = rng.gen_range(0..height);
+   |                            ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:18:30
+   |
+18 |         let alpha_mult = rng.gen_range(0.1..0.3);
+   |                              ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:21:17
+   |
+21 |             rng.gen_range(0..256),
+   |                 ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:22:17
+   |
+22 |             rng.gen_range(0..256),
+   |                 ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\themindelectric.rs:23:17
+   |
+23 |             rng.gen_range(0..256),
+   |                 ^^^^^^^^^
+
+error[E0599]: no method named `get_pixel` found for enum `DynamicImage` in the current scope
+   --> src\libdatabend\themindelectric.rs:32:37
+    |
+32  |                     let pixel = img.get_pixel(src_x as u32, src_y as u32);
+    |                                     ^^^^^^^^^
+    |
+   ::: C:\Users\Miguel\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\image-0.25.6\src\image.rs:915:8   
+    |
+915 |     fn get_pixel(&self, x: u32, y: u32) -> Self::Pixel;
+    |        --------- the method is available for `DynamicImage` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `GenericImageView` which provides `get_pixel` is implemented but not in scope; perhaps you want to import it
+    |
+1   + use image::GenericImageView;
+    |
+help: there is a method `get_pixel_mut` with a similar name
+    |
+32  |                     let pixel = img.get_pixel_mut(src_x as u32, src_y as u32);
+    |                                              ++++
+
+error[E0277]: the `?` operator can only be used in a function that returns `Result` or `Option` (or another type that implements `FromResidual`)
+  --> src\libdatabend\jackstauberism.rs:62:51
+   |
+6  | pub fn main(input_path: &str, output_path: &str) {
+   | ------------------------------------------------ this function should return `Result` or `Option` to accept `?`
+...
+62 |         if event::poll(Duration::from_millis(500))? {
+   |                                                   ^ cannot use the `?` operator in a function that returns `()`
+   |
+help: consider adding return type
+   |
+6  ~ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+7  |     let mut img = ImageReader::open(input_path)
+...
+82 |     new_img.save(output_path).expect("Failed to save new image");
+83 +     Ok(())
+   |
+
+error[E0277]: the `?` operator can only be used in a function that returns `Result` or `Option` (or another type that implements `FromResidual`)
+  --> src\libdatabend\jackstauberism.rs:63:57
+   |
+6  | pub fn main(input_path: &str, output_path: &str) {
+   | ------------------------------------------------ this function should return `Result` or `Option` to accept `?`
+...
+63 |             if let Event::Key(key_event) = event::read()? {
+   |                                                         ^ cannot use the `?` operator in a function that 
+returns `()`
+   |
+help: consider adding return type
+   |
+6  ~ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+7  |     let mut img = ImageReader::open(input_path)
+...
+82 |     new_img.save(output_path).expect("Failed to save new image");
+83 +     Ok(())
+   |
+
+error[E0277]: the type `str` cannot be indexed by `{integer}`
+  --> src\libdatabend\jackstauberism.rs:68:47
+   |
+68 | ...                   img[idx] = lyrics[lyric_index];
+   |                                         ^^^^^^^^^^^ string indices are ranges of `usize`
+   |
+   = help: the trait `SliceIndex<str>` is not implemented for `{integer}`
+   = note: you can use `.chars().nth()` or `.bytes().nth()`
+           for more information, see chapter 8 in The Book: <https://doc.rust-lang.org/book/ch08-02-strings.html#indexing-into-strings>
+   = help: the following other types implement trait `SliceIndex<T>`:
+             `usize` implements `SliceIndex<ByteStr>`
+             `usize` implements `SliceIndex<[T]>`
+   = note: required for `str` to implement `Index<{integer}>`
+
+error[E0599]: no method named `width` found for struct `Vec<u8>` in the current scope
+  --> src\libdatabend\jackstauberism.rs:80:56
+   |
+80 |     let new_img: RgbaImage = ImageBuffer::from_raw(img.width() as u32, img.height() as u32, img)
+   |                                                        ^^^^^ method not found in `Vec<u8>`
+
+error[E0599]: no method named `height` found for struct `Vec<u8>` in the current scope
+  --> src\libdatabend\jackstauberism.rs:80:76
+   |
+80 |     let new_img: RgbaImage = ImageBuffer::from_raw(img.width() as u32, img.height() as u32, img)
+   |                                                                            ^^^^^^ method not found in `Vec<u8>`
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\newnormal.rs:23:43
+   |
+23 | ...                   let idx = rng.gen_range(0..img.len());
+   |                                     ^^^^^^^^^
+
+warning: use of deprecated method `rand::Rng::gen_range`: Renamed to `random_range`
+  --> src\libdatabend\newnormal.rs:24:44
+   |
+24 | ...                   img[idx] = rng.gen_range(0..=255);
+   |                                      ^^^^^^^^^
+
+warning: use of deprecated method `ratatui::Frame::<'_>::size`: use .area() as it's the more correct name
+   --> src\main.rs:295:18
+    |
+295 |         .split(f.size());
+    |                  ^^^^
+
+warning: use of deprecated method `ratatui::Frame::<'_>::size`: use .area() as it's the more correct name
+   --> src\main.rs:460:44
+    |
+460 |         let area = centered_rect(50, 20, f.size());
+    |                                            ^^^^
+
+warning: unused import: `Backend`
+ --> src\main.rs:9:15
+  |
+9 |     backend::{Backend, CrosstermBackend},
+  |               ^^^^^^^
+
+warning: unused variable: `exposure_factor`
+ --> src\libdatabend\overexposure.rs:4:50
+  |
+4 | pub fn main(input_path: &str, output_path: &str, exposure_factor: f32) {
+  |                                                  ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_exposure_factor`
+  |
+  = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `c`
+  --> src\libdatabend\newnormal.rs:20:35
+   |
+20 |                     KeyCode::Char(c) => {
+   |                                   ^ help: if this is intentional, prefix it with an underscore: `_c`     
+
+warning: unused variable: `output_path`
+ --> src\libdatabend\newnormal.rs:6:31
+  |
+6 | pub fn main(input_path: &str, output_path: &str) {
+  |                               ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_output_path`
+
+Some errors have detailed explanations: E0252, E0277, E0425, E0433, E0599.
+For more information about an error, try `rustc --explain E0252`.
+warning: `Shutterbomb` (bin "Shutterbomb") generated 37 warnings
+error: could not compile `Shutterbomb` (bin "Shutterbomb") due to 16 previous errors; 37 warnings emitted   
