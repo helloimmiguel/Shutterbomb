@@ -1,42 +1,75 @@
-use crossterm::event::{self, Event, KeyCode};
-use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
-use rand::{rng, Rng};
-use image::{ImageBuffer, ImageReader, RgbaImage, DynamicImage};
+use image::{DynamicImage, ImageBuffer, ImageReader, RgbImage};
+use rand::{Rng, rng};
 
-pub fn main(input_path: &str, output_path: &str) {
-    let img = ImageReader::open(input_path)
-        .expect("Failed to open image")
-        .decode()
-        .expect("Failed to decode image");
+pub struct SynesthesiaState {
+    pub rawimg: Vec<u8>,
+    pub rng: rand::rngs::ThreadRng,
+    pub modifications_count: usize,
+    pub img_width: u32,
+    pub img_height: u32,
+}
 
-    let mut rawimg = img.to_rgba8().into_raw();
-    let mut rng = rng();
+impl SynesthesiaState {
+    pub fn new(input_path: &str) -> Result<Self, String> {
+        let img = ImageReader::open(input_path)
+            .map_err(|e| format!("Failed to open image: {}", e))?;
+        
+        let img = img.decode()
+            .map_err(|e| format!("Failed to decode image: {}", e))?;
 
-    enable_raw_mode().expect("failed to enable raw mode");
+        let rawimg = img.to_rgba8().into_raw();
+        
+        Ok(Self {
+            rawimg,
+            rng: rng(),
+            modifications_count: 0,
+            img_width: img.width(),
+            img_height: img.height(),
+        })
+    }
 
-    loop {
-        if event::poll(std::time::Duration::from_millis(500)).unwrap() {
-            if let Event::Key(key_event) = event::read().unwrap() {
-                match key_event.code {
-                    KeyCode::Char(c) => {
-                        let value = c as u8;
-                        let random_index = rng.random_range(0..rawimg.len());
-                        rawimg[random_index] = value;
-                        println!("Applied '{}' ({} as u8) at {}", c, value, random_index);
-                    }
-                    KeyCode::Esc => {
-                        println!("Exiting synesthesia mode...");
-                        break;
-                    }
-                    _ => {}
+    pub fn process_key(&mut self, c: char) -> String {
+        let value = c as u8;
+        let chaos_amount = (value as usize * 13) % 500 + 50;
+        
+        for _ in 0..chaos_amount {
+            let random_index = self.rng.random_range(0..self.rawimg.len());
+            
+            match c {
+                'a'..='z' => {
+                    self.rawimg[random_index] = self.rawimg[random_index].wrapping_add(value);
+                }
+                '0'..='9' => {
+                    self.rawimg[random_index] = value.wrapping_mul(17);
+                }
+                ' ' => {
+                    self.rawimg[random_index] = 0;
+                }
+                _ => {
+                    self.rawimg[random_index] = self.rng.random_range(0..=255);
                 }
             }
         }
+        
+        self.modifications_count += chaos_amount;
+        format!("🎵 Key '{}' pressed - {} pixels databent! (Total: {})", c, chaos_amount, self.modifications_count)
     }
 
-    disable_raw_mode().expect("failed to disable raw mode");
+    pub fn save(&self, output_path: &str) -> Result<String, String> {
+        let rgb_data: Vec<u8> = self.rawimg
+            .chunks(4)
+            .flat_map(|rgba| &rgba[..3])
+            .copied()
+            .collect();
 
-    let new_img: RgbaImage =
-        ImageBuffer::from_raw(img.width(), img.height(), rawimg).expect("Failed to create new image");
-    DynamicImage::ImageRgba8(new_img).save(output_path).expect("Failed to save new image");
+        let new_img: RgbImage = ImageBuffer::from_raw(self.img_width, self.img_height, rgb_data)
+            .ok_or("Failed to create new image")?;
+        
+        DynamicImage::ImageRgb8(new_img)
+            .save(output_path)
+            .map_err(|e| format!("Failed to save image: {}", e))?;
+
+        Ok(format!("🎭 Synesthesia complete! {} pixels modified total", self.modifications_count))
+    }
 }
+

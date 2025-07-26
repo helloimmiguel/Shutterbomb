@@ -1,4 +1,4 @@
-use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage};
+use image::{DynamicImage, ImageBuffer, ImageReader, RgbImage};
 use rand::Rng;
 use rand::rng;
 use crossterm::event::{self, Event, KeyCode};
@@ -45,9 +45,9 @@ pub fn main(input_path: &str, output_path: &str) {
         (original_img.width(), original_img.height())
     };
 
-    let rgba_img: RgbaImage = ImageBuffer::from_raw(width, height, img)
+    let rgba_img: RgbImage = ImageBuffer::from_raw(width, height, img)
         .expect("failed to create image buffer");
 
-    let dynamic_img = DynamicImage::ImageRgba8(rgba_img);
+    let dynamic_img = DynamicImage::ImageRgb8(rgba_img);
     dynamic_img.save(output_path).expect("failed to save image");
 }

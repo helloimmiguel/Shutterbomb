@@ -40,6 +40,7 @@ struct App {
     progress: f64,
     status_message: String,
     last_update: Instant,
+    synesthesia_state: Option<libdatabend::synestesia::SynesthesiaState>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -111,6 +112,7 @@ impl App {
             progress: 0.0,
             status_message: "welcome to shutterbomb!! 📸💣".to_string(),
             last_update: Instant::now(),
+            synesthesia_state: None,
         }
     }
 
@@ -161,16 +163,26 @@ impl App {
                 libdatabend::overexposure::main(&self.input_path, &self.output_path, exposure);
             }
             2 => {
-                // Synesthesia
-                libdatabend::synestesia::main(&self.input_path, &self.output_path);
+                // Synesthesia - Initialize interactive mode
+                match libdatabend::synestesia::SynesthesiaState::new(&self.input_path) {
+                    Ok(state) => {
+                        self.synesthesia_state = Some(state);
+                        self.current_input = InputMode::Processing;
+                        self.status_message = "🎹 Synesthesia mode active! Press keys to databend, ESC to finish!".to_string();
+                    }
+                    Err(error) => {
+                        self.status_message = format!("❌ Failed to start synesthesia: {}", error);
+                    }
+                }
+                return; // Don't set processing to false
             }
             3 => {
                 // Variations on a Cloud
-                let patch_size = self.params[0].parse::<u32>().unwrap_or(50);
-                libdatabend::variationsonacloud::main(
+                let layers = self.params[0].parse::<u32>().unwrap_or(5);
+                let _ = libdatabend::variationsonacloud::main(
                     &self.input_path,
                     &self.output_path,
-                    patch_size,
+                    layers,
                 );
             }
             4 => {
@@ -285,8 +297,34 @@ fn run_app(terminal: &mut Tui, app: &mut App) -> io::Result<()> {
                             _ => {}
                         },
                         InputMode::Processing => {
-                            if key.code == KeyCode::Esc {
-                                app.current_input = InputMode::SelectingEffect;
+                            if app.synesthesia_state.is_some() {
+                                // Special handling for synesthesia mode
+                                match key.code {
+                                    KeyCode::Esc => {
+                                        // Save and exit synesthesia mode
+                                        if let Some(state) = &app.synesthesia_state {
+                                            match state.save(&app.output_path) {
+                                                Ok(message) => app.status_message = message,
+                                                Err(error) => app.status_message = format!("❌ {}", error),
+                                            }
+                                        }
+                                        app.synesthesia_state = None;
+                                        app.current_input = InputMode::SelectingEffect;
+                                        app.processing = false;
+                                    }
+                                    KeyCode::Char(c) => {
+                                        // Process the key press in synesthesia mode
+                                        if let Some(state) = &mut app.synesthesia_state {
+                                            app.status_message = state.process_key(c);
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                            } else {
+                                // Normal processing mode
+                                if key.code == KeyCode::Esc {
+                                    app.current_input = InputMode::SelectingEffect;
+                                }
                             }
                         }
                     }
@@ -312,7 +350,7 @@ fn ui(f: &mut Frame, app: &App) {
         .split(f.area());
 
     // Title
-    let title = Paragraph::new("📸💣 |Shutterbomb - v0.1 - 🎵 I've began to databend 🎵| 📸💣")
+    let title = Paragraph::new("📸💣 |Shutterbomb - v0.2 - 🎵 I've began to databend 🎵| 📸💣")
         .style(
             Style::default()
                 .fg(Color::Cyan)

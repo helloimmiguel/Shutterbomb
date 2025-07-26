@@ -1,6 +1,6 @@
 use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use image::{ImageBuffer, ImageReader, RgbaImage, DynamicImage};
+use image::{ImageBuffer, ImageReader, RgbImage, DynamicImage};
 use rand::{rng, Rng};
 use std::time::Duration;
 use std::error::Error;
@@ -80,9 +80,9 @@ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
 
     disable_raw_mode()?;
 
-    let new_img: RgbaImage = ImageBuffer::from_raw(width, height, img)
+    let new_img: RgbImage = ImageBuffer::from_raw(width, height, img)
         .expect("Failed to create new image");
-    DynamicImage::ImageRgba8(new_img).save(output_path)?;
-    
+    DynamicImage::ImageRgb8(new_img).save(output_path)?;
+
     Ok(())
 }
