@@ -36,7 +36,7 @@ Comprehensive documentation for all databending effects in Shutterbomb.
   - 0-800: Minimal noise
   - 800-1600: Light grain
   - 1600-3200: Moderate corruption
-  - 3200-6400: Heavy noise
+  - 3200-9999: Heavy noise
 
 **Algorithm**:
 ```rust
@@ -52,10 +52,6 @@ for byte in rawimg.iter_mut() {
 - **Probability-based**: Each byte has `intensity` chance of corruption
 - **Random Replacement**: Corrupted bytes become completely random values
 - **Channel Agnostic**: Affects R, G, B, and A channels equally
-
-**Known Issues**:
-- Uses deprecated `rand::thread_rng()` and `gen_bool()`
-- Should use `rand::rng()` and `random_bool()`
 
 **Best Practices**:
 - Start with ISO 800 for subtle effects
@@ -90,10 +86,6 @@ for chunk in rawimg.chunks_mut(4) {
 - **RGB Only**: Preserves alpha channel integrity
 - **Clamping**: Prevents overflow beyond 255
 - **Random Boost**: Each RGB channel gets random brightness increase
-
-**Known Issues**:
-- `exposure_factor` parameter defined but not used in current implementation
-- Uses deprecated `rand::thread_rng()` and `gen_range()`
 
 **Visual Effects**:
 - Creates realistic camera overexposure artifacts
@@ -136,10 +128,6 @@ for y in 0..patch_size {
 - **Boundary Checking**: Ensures patches fit within image dimensions
 - **Single Operation**: One patch copy per execution
 
-**Known Issues**:
-- **Critical Error**: Index types must be `usize`, not `u32`
-- **Panic Risk**: Incorrect `.expect(panic!())` usage
-- **Limited Effect**: Only one patch copied per execution
 
 **Fixes Needed**:
 ```rust
@@ -198,11 +186,6 @@ fn alpha_blend(bottom: Rgba<u8>, top: Rgba<u8>) -> Rgba<u8> {
 - **Proper Alpha Math**: Implements correct alpha compositing formulas
 - **Color Shifting**: Random RGB offsets for each layer
 - **Transparent Canvas**: Starts with transparent black background
-
-**Known Issues**:
-- **Import Errors**: Duplicate imports causing compilation failure
-- **Missing Trait**: `GenericImageView` not imported for `get_pixel()`
-- **Return Type**: Should return `Result` for proper error handling
 
 **Performance Characteristics**:
 - **Quadratic Complexity**: O(layers × width × height)
@@ -354,11 +337,6 @@ KeyCode::Char(_) => {
 - Progressive destruction through repeated interaction
 - Abstract art through data annihilation
 
-**Known Issues**:
-- **Unused Variables**: `output_path` and character `c` parameters
-- **Missing Cleanup**: Image dimensions need separate loading
-- **Terminal State**: Potential raw mode cleanup issues
-
 ## Technical Implementation
 
 ### Common Patterns
@@ -410,7 +388,7 @@ DynamicImage::ImageRgba8(new_img).save(output_path)
 
 ### Compilation Issues
 
-1. **Fix deprecated `rand` functions**:
+1. **Fix deprecated `rand` functions** (FIXED):
    ```rust
    // Replace:
    rand::thread_rng().gen_range(0..255)
@@ -418,7 +396,7 @@ DynamicImage::ImageRgba8(new_img).save(output_path)
    rand::rng().random_range(0..255)
    ```
 
-2. **Fix import conflicts**:
+2. **Fix import conflicts** (FIXED):
    ```rust
    // Remove duplicate imports in themindelectric.rs
    use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba, GenericImageView};

@@ -198,7 +198,8 @@ pub fn main(input_path: &str, output_path: &str) {
 2. **Type Mismatches**: Index type issues in `variationsonacloud.rs`
 3. **Missing Dependencies**: `Duration` import in `jackstauberism.rs`
 4. **Scope Issues**: Missing `rng` variable and trait imports
-5. **Return Type Mismatches**: Interactive functions need `Result` return types
+5. **AI not knowing how to deal with RNG**: Most LLMs will try to use a deprecated method to implement RNG called "rand::thread_rng"
+6. **Return Type Mismatches**: Interactive functions need `Result` return types
 
 ## Performance Considerations
 
