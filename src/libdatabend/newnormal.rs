@@ -36,10 +36,10 @@ pub fn main(input_path: &str, output_path: &str) {
 
     disable_raw_mode().expect("failed to disable raw mode");
 
-    let rgba_img: RgbImage = ImageBuffer::from_raw(width, height, img)
+    let rgb_img: RgbImage = ImageBuffer::from_raw(width, height, img)
         .expect("failed to create image buffer");
 
-    DynamicImage::ImageRgb8(rgba_img)
+    DynamicImage::ImageRgb8(rgb_img)
         .save(output_path)
         .expect("failed to save image");
 }
