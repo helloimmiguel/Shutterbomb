@@ -56,9 +56,8 @@ pub fn main(input_path: &str, output_path: &str, patch_size: u32) -> Result<(), 
                     let dest_start = dest_pixel_index as usize;
                     
                     if src_start + 4 <= rawimg.len() && dest_start + 4 <= new_rawimg.len() {
-                        for i in 0..4 {
-                            new_rawimg[dest_start + i] = rawimg[src_start + i];
-                        }
+                        new_rawimg[dest_start..dest_start + 4]
+                            .copy_from_slice(&rawimg[src_start..src_start + 4]);
                     }
                 }
             }

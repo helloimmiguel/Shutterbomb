@@ -17,13 +17,13 @@ Detailed documentation of the TUI components and interface design.
 ```
 ┌─────────────────────────────────────────┐
 │              Title Bar (3)              │ ← Fixed height
-├─────────────────┬───────────────────────┤
-│                 │                       │
-│   Effects List  │    Right Panel        │ ← Expandable area
-│      (50%)      │       (50%)           │
-│                 │                       │
-├─────────────────┴───────────────────────┤
-│             Status Bar (3)              │ ← Fixed height
+├────────────────┬────────────────────────┤
+│                │                        │
+│  Effects List  │     Right Panel        │ ← Expandable area
+│     (40%)      │        (60%)           │
+│                │                        │
+├────────────────┴────────────────────────┤
+│             Status Bar (4)              │ ← Fixed height
 └─────────────────────────────────────────┘
 ```
 
@@ -35,7 +35,7 @@ let chunks = Layout::default()
     .constraints([
         Constraint::Length(3),    // Title: Fixed 3 lines
         Constraint::Min(10),      // Main: Minimum 10 lines, expands
-        Constraint::Length(3),    // Status: Fixed 3 lines
+        Constraint::Length(4),    // Status: Fixed 4 lines
     ])
     .split(f.area());
 ```
@@ -48,7 +48,7 @@ let chunks = Layout::default()
 **Type**: `Paragraph`
 
 ```rust
-let title = Paragraph::new("📸💣 |Shutterbomb - v0.1 - 🎵 I've began to databend 🎵| 📸💣")
+let title = Paragraph::new("📸💣 Shutterbomb v0.2 — Interactive Image Databending")
     .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))
     .alignment(Alignment::Center)
     .block(
@@ -70,7 +70,7 @@ let title = Paragraph::new("📸💣 |Shutterbomb - v0.1 - 🎵 I've began to da
 
 ### 2. Main Content Area
 
-**Layout**: Horizontal split (50/50)
+**Layout**: Horizontal split (40/60)
 
 #### 2.1 Effects List (Left Panel)
 
@@ -231,14 +231,15 @@ let status_text = vec![
 ```
 
 **Information Architecture**:
-- **Line 1**: Current application status
-- **Line 2**: Available keyboard controls
+- **Line 1**: Current mode label and application status message
+- **Line 2**: Context-sensitive keyboard controls for the active mode
 
 **Styling Strategy**:
-- **White Labels**: "Status:", "Controls:"
+- **White Labels**: "Mode:", "Status:"
+- **Magenta Bold**: Current mode name
 - **Green Status**: Current status message
 - **Cyan Actions**: Available commands
-- **Red Exit**: Quit commands for emphasis
+- **Red Exit**: Quit/cancel commands for emphasis
 
 ---
 

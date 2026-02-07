@@ -42,8 +42,8 @@ Comprehensive documentation for all databending effects in Shutterbomb.
 ```rust
 let intensity = 0.01 * iso as f32 / 1000.0;
 for byte in rawimg.iter_mut() {
-    if rng.gen_bool(intensity as f64) {
-        *byte = rng.gen_range(0..=255);
+    if rng.random_bool(intensity as f64) {
+        *byte = rng.random_range(0..=255);
     }
 }
 ```
@@ -72,11 +72,12 @@ for byte in rawimg.iter_mut() {
 
 **Algorithm**:
 ```rust
+let boost_max = (50.0 * exposure_factor).max(1.0) as u8;
 for chunk in rawimg.chunks_mut(4) {
-    for i in 0..3 { // Skip alpha channel
-        let boost: u8 = rng.gen_range(0..(50.0 * exposure_factor) as u8);
-        let sum = chunk[i] as u16 + boost as u16;
-        chunk[i] = sum.min(255) as u8;
+    for channel in chunk.iter_mut().take(3) { // Skip alpha channel
+        let boost: u8 = rng.random_range(0..boost_max);
+        let sum = *channel as u16 + boost as u16;
+        *channel = sum.min(255) as u8;
     }
 }
 ```
@@ -128,18 +129,6 @@ for y in 0..patch_size {
 - **Boundary Checking**: Ensures patches fit within image dimensions
 - **Single Operation**: One patch copy per execution
 
-
-**Fixes Needed**:
-```rust
-// Current (broken):
-new_rawimg[dest_index..dest_index + 4]  // u32 indices
-
-// Should be:
-let src_start = src_index as usize;
-let dest_start = dest_index as usize;
-new_rawimg[dest_start..dest_start + 4]  // usize indices
-```
-
 ---
 
 ### ⚡ The Mind Electric (`themindelectric.rs`)
@@ -155,16 +144,16 @@ new_rawimg[dest_start..dest_start + 4]  // usize indices
 **Algorithm**:
 ```rust
 for _ in 0..*layers {
-    let offset_x = rng.gen_range(0..width);
-    let offset_y = rng.gen_range(0..height);
-    let alpha_mult = rng.gen_range(0.1..0.3);
-    
+    let offset_x = rng.random_range(0..width);
+    let offset_y = rng.random_range(0..height);
+    let alpha_mult = rng.random_range(0.1..0.3);
+
     let color_shift = (
-        rng.gen_range(0..256),
-        rng.gen_range(0..256),
-        rng.gen_range(0..256),
+        rng.random_range(0..256),
+        rng.random_range(0..256),
+        rng.random_range(0..256),
     );
-    
+
     // Process each pixel with offset and color shift
     // Apply alpha blending to canvas
 }
@@ -204,24 +193,27 @@ fn alpha_blend(bottom: Rgba<u8>, top: Rgba<u8>) -> Rgba<u8> {
 
 **Algorithm**:
 ```rust
-enable_raw_mode().expect("failed to enable raw mode");
+let value = c as u8;
+let chaos_amount = (value as usize * 13) % 500 + 50;
 
-loop {
-    if event::poll(Duration::from_millis(500)).unwrap() {
-        if let Event::Key(key_event) = event::read().unwrap() {
-            match key_event.code {
-                KeyCode::Char(c) => {
-                    let value = c as u8;
-                    let random_index = rng.gen_range(0..rawimg.len());
-                    rawimg[random_index] = value;
-                }
-                KeyCode::Esc => break,
-            }
+for _ in 0..chaos_amount {
+    let random_index = self.rng.random_range(0..self.rawimg.len());
+
+    match c {
+        'a'..='z' => {
+            self.rawimg[random_index] = self.rawimg[random_index].wrapping_add(value);
+        }
+        '0'..='9' => {
+            self.rawimg[random_index] = value.wrapping_mul(17);
+        }
+        ' ' => {
+            self.rawimg[random_index] = 0;
+        }
+        _ => {
+            self.rawimg[random_index] = self.rng.random_range(0..=255);
         }
     }
 }
-
-disable_raw_mode().expect("failed to disable raw mode");
 ```
 
 **Technical Details**:
@@ -235,11 +227,6 @@ disable_raw_mode().expect("failed to disable raw mode");
 - Use special characters for unique byte patterns
 - Rhythmic typing creates interesting distributions
 - Long sessions build up complex corruption
-
-**Known Issues**:
-- **No Visual Feedback**: Changes invisible until save
-- **Terminal Dependency**: Requires specific terminal capabilities
-- **State Management**: Raw mode must be properly cleaned up
 
 ---
 
@@ -269,7 +256,7 @@ Nothing in, prize out
 **Algorithm**:
 ```rust
 for _ in 0..img.len() / 128 {  // Process 1/128th of image per keypress
-    let idx = rng.gen_range(0..img.len());
+    let idx = rng.random_range(0..img.len());
     img[idx] = lyrics_bytes[lyric_index];
     lyric_index = (lyric_index + 1) % lyrics_bytes.len();
 }
@@ -280,29 +267,6 @@ for _ in 0..img.len() / 128 {  // Process 1/128th of image per keypress
 - **Batch Processing**: Multiple injections per keypress
 - **Cyclic Buffer**: Lyrics wrap around when exhausted
 - **Artistic Concept**: Merges textual and visual art
-
-**Known Issues**:
-- **Critical Errors**: Multiple compilation failures
-  - Missing `Duration` import
-  - Incorrect function signature (should return `Result`)
-  - String indexing error (`lyrics[index]` should be `lyrics_bytes[index]`)
-  - Missing image dimensions for reconstruction
-
-**Fixes Needed**:
-```rust
-// Add imports
-use std::time::Duration;
-
-// Fix function signature
-pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
-
-// Fix string handling
-let lyrics_bytes = lyrics.as_bytes();
-img[idx] = lyrics_bytes[lyric_index];
-
-// Fix image reconstruction
-let (width, height) = original_img.dimensions();
-```
 
 ---
 
@@ -318,10 +282,9 @@ let (width, height) = original_img.dimensions();
 **Algorithm**:
 ```rust
 KeyCode::Char(_) => {
-    let mut rng = thread_rng();
     for _ in 0..img.len() / 16 {  // Corrupt 1/16th of image
-        let idx = rng.gen_range(0..img.len());
-        img[idx] = rng.gen_range(0..=255);
+        let idx = luck.random_range(0..img.len());
+        img[idx] = luck.random_range(0..=255);
     }
 }
 ```
@@ -365,12 +328,11 @@ DynamicImage::ImageRgba8(new_img).save(output_path)
     .expect("Failed to save image");
 ```
 
-### Error Patterns
+### Error Handling Patterns
 
-1. **Deprecated APIs**: Most effects use outdated `rand` functions
-2. **Import Management**: Several files have duplicate or missing imports
-3. **Type Safety**: Index types and string handling need attention
-4. **Error Handling**: Inconsistent use of `Result` types
+1. **Fatal Errors**: Use `.expect()` with descriptive messages for unrecoverable errors
+2. **Parameter Defaults**: Use `.unwrap_or()` with sensible defaults for user-provided values
+3. **Recoverable Errors**: Return `Result` types for operations that may fail gracefully
 
 ### Performance Characteristics
 
@@ -386,35 +348,12 @@ DynamicImage::ImageRgba8(new_img).save(output_path)
 
 ## Troubleshooting
 
-### Compilation Issues
-
-1. **Fix deprecated `rand` functions** (FIXED):
-   ```rust
-   // Replace:
-   rand::thread_rng().gen_range(0..255)
-   // With:
-   rand::rng().random_range(0..255)
-   ```
-
-2. **Fix import conflicts** (FIXED):
-   ```rust
-   // Remove duplicate imports in themindelectric.rs
-   use image::{DynamicImage, ImageBuffer, ImageReader, RgbaImage, Rgba, GenericImageView};
-   use rand::{thread_rng, Rng};
-   ```
-
-3. **Fix index types**:
-   ```rust
-   // Cast to usize for array indexing
-   let index = calculation as usize;
-   ```
-
 ### Runtime Issues
 
-1. **Terminal State**: Always ensure `disable_raw_mode()` is called
+1. **Terminal State**: Always ensure `disable_raw_mode()` is called on exit
 2. **File Paths**: Use absolute paths for testing
 3. **Memory**: Monitor usage with large images
-4. **Interactive Feedback**: Add status messages for better UX
+4. **Interactive Feedback**: Check the status bar for mode-specific help
 
 ---
 

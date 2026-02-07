@@ -61,19 +61,19 @@ pub fn main(input_path: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
     let lyrics_bytes = lyrics.as_bytes();
 
     loop {
-        if event::poll(Duration::from_millis(500))? {
-            if let Ok(Event::Key(key_event)) = event::read() {
-                match key_event.code {
-                    KeyCode::Char(_) => {
-                        for _ in 0..img.len() / 128 {
-                            let idx = rng.random_range(0..img.len());
-                            img[idx] = lyrics_bytes[lyric_index];
-                            lyric_index = (lyric_index + 1) % lyrics_bytes.len();
-                        }
+        if event::poll(Duration::from_millis(500))?
+            && let Ok(Event::Key(key_event)) = event::read()
+        {
+            match key_event.code {
+                KeyCode::Char(_) => {
+                    for _ in 0..img.len() / 128 {
+                        let idx = rng.random_range(0..img.len());
+                        img[idx] = lyrics_bytes[lyric_index];
+                        lyric_index = (lyric_index + 1) % lyrics_bytes.len();
                     }
-                    KeyCode::Esc => break,
-                    _ => {}
                 }
+                KeyCode::Esc => break,
+                _ => {}
             }
         }
     }

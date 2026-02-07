@@ -7,8 +7,6 @@ pub fn main(input_path: &str, output_path: &str, layers: &u32) -> Result<(), Box
     let mut rng = rng();
     let (width, height) = (img.width(), img.height());
     let mut canvas = ImageBuffer::from_pixel(width, height, Rgba([0, 0, 0, 0]));
-    let img_width = img.width();
-    let img_height = img.height();
 
     for _ in 0..*layers {
         let offset_x = rng.random_range(0..width);
@@ -44,17 +42,17 @@ pub fn main(input_path: &str, output_path: &str, layers: &u32) -> Result<(), Box
     }
 
     let rgb_data: Vec<u8> = canvas
-            .chunks(4)
-            .flat_map(|rgba| &rgba[..3])
-            .copied()
-            .collect();
+        .chunks(4)
+        .flat_map(|rgba| &rgba[..3])
+        .copied()
+        .collect();
 
-        let new_img: RgbImage = ImageBuffer::from_raw(img_width, img_height, rgb_data)
-            .ok_or("Failed to create new image")?;
-        
-        DynamicImage::ImageRgb8(new_img)
-            .save(output_path)
-            .map_err(|e| format!("Failed to save image: {}", e))?;
+    let new_img: RgbImage = ImageBuffer::from_raw(width, height, rgb_data)
+        .ok_or("Failed to create new image")?;
+
+    DynamicImage::ImageRgb8(new_img)
+        .save(output_path)
+        .map_err(|e| format!("Failed to save image: {}", e))?;
 
     Ok(())
 }
