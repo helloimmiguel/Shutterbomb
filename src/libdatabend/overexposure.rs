@@ -10,11 +10,12 @@ pub fn main(input_path: &str, output_path: &str, exposure_factor: f32) {
     let mut rawimg = img.to_rgba8().into_raw();
     let mut rng = rng();
 
+    let boost_max = (50.0 * exposure_factor).max(1.0) as u8;
     for chunk in rawimg.chunks_mut(4) {
-        for i in 0..3 {
-            let boost: u8 = rng.random_range(0..(50.0 * exposure_factor) as u8);
-            let sum = chunk[i] as u16 + boost as u16;
-            chunk[i] = sum.min(255) as u8;
+        for channel in chunk.iter_mut().take(3) {
+            let boost: u8 = rng.random_range(0..boost_max);
+            let sum = *channel as u16 + boost as u16;
+            *channel = sum.min(255) as u8;
         }
     }
     let new_img: RgbaImage = ImageBuffer::from_raw(img.width(), img.height(), rawimg)
