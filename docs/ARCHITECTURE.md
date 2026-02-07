@@ -84,6 +84,7 @@ struct App {
     progress: f64,                   // Progress percentage
     status_message: String,          // Status bar message
     last_update: Instant,            // Last update timestamp
+    synesthesia_state: Option<SynesthesiaState>, // Interactive synesthesia session
 }
 ```
 
@@ -191,15 +192,6 @@ pub fn main(input_path: &str, output_path: &str) {
 1. **Fatal Errors**: Use `.expect()` with descriptive messages
 2. **Parameter Errors**: Use `.unwrap_or()` with sensible defaults
 3. **Interactive Errors**: Return `Result` types for complex operations
-
-### Known Issues (from error log)
-
-1. **Import Conflicts**: Duplicate imports in `themindelectric.rs`
-2. **Type Mismatches**: Index type issues in `variationsonacloud.rs`
-3. **Missing Dependencies**: `Duration` import in `jackstauberism.rs`
-4. **Scope Issues**: Missing `rng` variable and trait imports
-5. **AI not knowing how to deal with RNG**: Most LLMs will try to use a deprecated method to implement RNG called "rand::thread_rng"
-6. **Return Type Mismatches**: Interactive functions need `Result` return types
 
 ## Performance Considerations
 

@@ -2,7 +2,7 @@
 name = "Shutterbomb"
 version = "0.2.0"
 edition = "2024"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["helloimmiguel"]
 description = "📸💣 Shutterbomb - A terminal-based cute application for databending 📸💣"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/helloimmiguel/Shutterbomb"
