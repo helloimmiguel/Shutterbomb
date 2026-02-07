@@ -51,7 +51,7 @@ jobs:
 
       - name: Package
         run: |
-          BIN="shutterbomb"
+          BIN="Shutterbomb"
           mkdir dist
           cp target/x86_64-unknown-linux-gnu/release/$BIN dist/$BIN-linux-x86_64
 
