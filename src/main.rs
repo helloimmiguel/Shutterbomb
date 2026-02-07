@@ -110,7 +110,7 @@ impl App {
             current_input: InputMode::SelectingEffect,
             processing: false,
             progress: 0.0,
-            status_message: "welcome to shutterbomb!! 📸💣".to_string(),
+            status_message: "Ready — select an effect and set file paths to begin".to_string(),
             last_update: Instant::now(),
             synesthesia_state: None,
         }
@@ -207,7 +207,7 @@ impl App {
 
         self.processing = false;
         self.progress = 100.0;
-        self.status_message = "you've databent successfully!".to_string();
+        self.status_message = "✅ Effect applied successfully!".to_string();
     }
 }
 
@@ -339,18 +339,28 @@ fn run_app(terminal: &mut Tui, app: &mut App) -> io::Result<()> {
     }
 }
 
+fn mode_label(mode: &InputMode) -> &'static str {
+    match mode {
+        InputMode::SelectingEffect => "Select Effect",
+        InputMode::InputPath => "Editing Input Path",
+        InputMode::OutputPath => "Editing Output Path",
+        InputMode::Parameters(_) => "Editing Parameters",
+        InputMode::Processing => "Processing",
+    }
+}
+
 fn ui(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3), // Title
             Constraint::Min(10),   // Main content
-            Constraint::Length(3), // Status
+            Constraint::Length(4), // Status
         ])
         .split(f.area());
 
     // Title
-    let title = Paragraph::new("📸💣 |Shutterbomb - v0.2 - 🎵 I've began to databend 🎵| 📸💣")
+    let title = Paragraph::new("📸💣 Shutterbomb v0.2 — Interactive Image Databending")
         .style(
             Style::default()
                 .fg(Color::Cyan)
@@ -368,7 +378,7 @@ fn ui(f: &mut Frame, app: &App) {
     // Main content
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
         .split(chunks[1]);
 
     // Effects list
@@ -383,20 +393,24 @@ fn ui(f: &mut Frame, app: &App) {
                 Style::default()
             };
             ListItem::new(Line::from(vec![
-                Span::raw(effect.emoji.clone()),
-                Span::raw(" "),
-                Span::styled(effect.name.clone(), style),
+                Span::raw(format!("{} ", &effect.emoji)),
+                Span::styled(&*effect.name, style),
             ]))
             .style(style)
         })
         .collect();
 
+    let effects_border = if app.current_input == InputMode::SelectingEffect {
+        Style::default().fg(Color::Green)
+    } else {
+        Style::default().fg(Color::DarkGray)
+    };
     let effects_list = List::new(effects)
         .block(
             Block::default()
-                .title("📋 Effects")
+                .title("Effects")
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Green)),
+                .border_style(effects_border),
         )
         .highlight_style(Style::default().add_modifier(Modifier::BOLD));
 
@@ -414,11 +428,12 @@ fn ui(f: &mut Frame, app: &App) {
         .split(main_chunks[1]);
 
     // Description
-    let desc = Paragraph::new(app.effects[app.selected_effect].description.clone())
+    let selected = &app.effects[app.selected_effect];
+    let desc = Paragraph::new(format!("{} {}", selected.emoji, selected.description))
         .style(Style::default().fg(Color::Yellow))
         .block(
             Block::default()
-                .title("📝 Description")
+                .title("Description")
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Yellow)),
         )
@@ -426,94 +441,169 @@ fn ui(f: &mut Frame, app: &App) {
     f.render_widget(desc, right_chunks[0]);
 
     // Input path
-    let input_style = if app.current_input == InputMode::InputPath {
+    let input_active = app.current_input == InputMode::InputPath;
+    let input_style = if input_active {
         Style::default().fg(Color::Green)
     } else {
         Style::default()
     };
-    let input = Paragraph::new(app.input_path.clone())
-        .style(input_style)
+    let input_content = if app.input_path.is_empty() && !input_active {
+        Span::styled("(none)", Style::default().fg(Color::DarkGray))
+    } else if input_active {
+        Span::styled(format!("{}▏", &app.input_path), input_style)
+    } else {
+        Span::styled(&*app.input_path, input_style)
+    };
+    let input = Paragraph::new(Line::from(input_content))
         .block(
             Block::default()
-                .title("📁 Input Path (press 'i')")
+                .title("Input Path [i]")
                 .borders(Borders::ALL)
                 .border_style(input_style),
         );
     f.render_widget(input, right_chunks[1]);
 
     // Output path
-    let output_style = if app.current_input == InputMode::OutputPath {
+    let output_active = app.current_input == InputMode::OutputPath;
+    let output_style = if output_active {
         Style::default().fg(Color::Green)
     } else {
         Style::default()
     };
-    let output = Paragraph::new(app.output_path.clone())
-        .style(output_style)
+    let output_content = if app.output_path.is_empty() && !output_active {
+        Span::styled("(none)", Style::default().fg(Color::DarkGray))
+    } else if output_active {
+        Span::styled(format!("{}▏", &app.output_path), output_style)
+    } else {
+        Span::styled(&*app.output_path, output_style)
+    };
+    let output = Paragraph::new(Line::from(output_content))
         .block(
             Block::default()
-                .title("💾 Output Path (press 'o')")
+                .title("Output Path [o]")
                 .borders(Borders::ALL)
                 .border_style(output_style),
         );
     f.render_widget(output, right_chunks[2]);
 
     // Parameters
-    if !app.effects[app.selected_effect].params.is_empty() {
-        let param_text = app.effects[app.selected_effect]
+    let param_border = if matches!(app.current_input, InputMode::Parameters(_)) {
+        Style::default().fg(Color::Green)
+    } else {
+        Style::default().fg(Color::Cyan)
+    };
+
+    if !selected.params.is_empty() {
+        let param_text = selected
             .params
             .iter()
             .zip(&app.params)
             .enumerate()
             .map(|(i, (param_name, value))| {
-                let style = if matches!(app.current_input, InputMode::Parameters(idx) if idx == i) {
+                let editing = matches!(app.current_input, InputMode::Parameters(idx) if idx == i);
+                let style = if editing {
                     Style::default().fg(Color::Green)
                 } else {
                     Style::default()
+                };
+                let display = if editing {
+                    format!("{}▏", value)
+                } else if value.is_empty() {
+                    "(default)".to_string()
+                } else {
+                    value.clone()
                 };
                 Line::from(vec![
                     Span::styled(
                         format!("{}: ", param_name),
                         Style::default().fg(Color::Cyan),
                     ),
-                    Span::styled(value.clone(), style),
+                    Span::styled(display, style),
                 ])
             })
             .collect::<Vec<_>>();
 
         let params = Paragraph::new(Text::from(param_text)).block(
             Block::default()
-                .title("⚙️ Parameters (p)")
+                .title("Parameters [p]")
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Cyan)),
+                .border_style(param_border),
         );
         f.render_widget(params, right_chunks[3]);
+    } else {
+        let no_params = Paragraph::new(
+            Span::styled("This effect has no configurable parameters.", Style::default().fg(Color::DarkGray))
+        ).block(
+            Block::default()
+                .title("Parameters")
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::DarkGray)),
+        );
+        f.render_widget(no_params, right_chunks[3]);
     }
 
-    // Status bar
-    let status_text = vec![
-        Line::from(vec![
-            Span::styled("Status: ", Style::default().fg(Color::White)),
-            Span::styled(
-                app.status_message.clone(),
-                Style::default().fg(Color::Green),
-            ),
-        ]),
-        Line::from(vec![
-            Span::raw("Controls: "),
-            Span::styled("↑↓", Style::default().fg(Color::Cyan)),
-            Span::raw(" select, "),
+    // Status bar — context-sensitive help per mode
+    let controls_line = match &app.current_input {
+        InputMode::SelectingEffect => Line::from(vec![
+            Span::styled("↑↓/j/k", Style::default().fg(Color::Cyan)),
+            Span::raw(" select  "),
+            Span::styled("i", Style::default().fg(Color::Cyan)),
+            Span::raw(" input path  "),
+            Span::styled("o", Style::default().fg(Color::Cyan)),
+            Span::raw(" output path  "),
+            Span::styled("p", Style::default().fg(Color::Cyan)),
+            Span::raw(" params  "),
             Span::styled("Enter", Style::default().fg(Color::Cyan)),
-            Span::raw(" execute, "),
-            Span::styled("i/o/p", Style::default().fg(Color::Cyan)),
-            Span::raw(" edit, "),
+            Span::raw(" run  "),
             Span::styled("q/Esc", Style::default().fg(Color::Red)),
             Span::raw(" quit"),
         ]),
+        InputMode::InputPath | InputMode::OutputPath => Line::from(vec![
+            Span::raw("Type a file path, then press "),
+            Span::styled("Enter", Style::default().fg(Color::Cyan)),
+            Span::raw(" to confirm or "),
+            Span::styled("Esc", Style::default().fg(Color::Red)),
+            Span::raw(" to cancel"),
+        ]),
+        InputMode::Parameters(_) => Line::from(vec![
+            Span::raw("Type a value, then press "),
+            Span::styled("Enter", Style::default().fg(Color::Cyan)),
+            Span::raw(" to run or "),
+            Span::styled("Esc", Style::default().fg(Color::Red)),
+            Span::raw(" to cancel"),
+        ]),
+        InputMode::Processing => {
+            if app.synesthesia_state.is_some() {
+                Line::from(vec![
+                    Span::raw("Press keys to databend the image. "),
+                    Span::styled("Esc", Style::default().fg(Color::Red)),
+                    Span::raw(" to save and exit"),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled("Esc", Style::default().fg(Color::Red)),
+                    Span::raw(" to return"),
+                ])
+            }
+        }
+    };
+
+    let status_text = vec![
+        Line::from(vec![
+            Span::styled("Mode: ", Style::default().fg(Color::White)),
+            Span::styled(
+                mode_label(&app.current_input),
+                Style::default().fg(Color::Magenta).add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("  "),
+            Span::styled(&*app.status_message, Style::default().fg(Color::Green)),
+        ]),
+        controls_line,
     ];
 
     let status = Paragraph::new(Text::from(status_text)).block(
         Block::default()
-            .title("📊 Status")
+            .title("Status")
             .borders(Borders::ALL)
             .border_style(Style::default().fg(Color::White)),
     );
@@ -526,7 +616,7 @@ fn ui(f: &mut Frame, app: &App) {
         let gauge = Gauge::default()
             .block(
                 Block::default()
-                    .title("🚀 Processing...")
+                    .title("Processing...")
                     .borders(Borders::ALL)
                     .border_style(Style::default().fg(Color::Green)),
             )
